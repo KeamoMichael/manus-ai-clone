@@ -15,6 +15,17 @@ app.use(cors());
 // Serve static files from the Vite build output
 app.use(express.static(join(__dirname, '../dist')));
 
+// SPA fallback: serve index.html for all non-file requests (Express 5.x compatible)
+app.use((req, res, next) => {
+  // If the request is not for a file (no extension), serve index.html
+  if (!req.path.includes('.')) {
+    res.sendFile(join(__dirname, '../dist/index.html'));
+  } else {
+    next();
+  }
+});
+
+
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
@@ -143,11 +154,6 @@ io.on('connection', (socket) => {
     console.log('Client disconnected');
     stopStreaming();
   });
-});
-
-// Catch-all route to serve index.html for SPA routing
-app.get('*', (req, res) => {
-  res.sendFile(join(__dirname, '../dist/index.html'));
 });
 
 const PORT = process.env.PORT || 3001;
