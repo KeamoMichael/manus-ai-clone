@@ -112,20 +112,29 @@ io.on('connection', (socket) => {
       try {
         await bb.sessions.stop(sessionId);
         activeSessions.delete(socket.id);
-        console.log(`Browser session stopped: ${sessionId}`);
+        console.log(`✓ Browser session stopped: ${sessionId}`);
       } catch (error) {
         console.error('Failed to stop browser:', error);
+        // Even if stop fails, remove from our tracking
+        activeSessions.delete(socket.id);
       }
     }
   });
 
-  // Client disconnect - cleanup
-  socket.on('disconnect', () => {
+  // Client disconnect - CRITICAL for free tier (1 concurrent session limit)
+  socket.on('disconnect', async () => {
     console.log('Client disconnected:', socket.id);
     const sessionId = activeSessions.get(socket.id);
     if (sessionId && bb) {
-      bb.sessions.stop(sessionId).catch(console.error);
-      activeSessions.delete(socket.id);
+      try {
+        // Force stop the session to free up concurrent session slot
+        await bb.sessions.stop(sessionId);
+        activeSessions.delete(socket.id);
+        console.log(`✓ Cleaned up session on disconnect: ${sessionId}`);
+      } catch (error) {
+        console.error('Failed to cleanup session:', error);
+        activeSessions.delete(socket.id);
+      }
     }
   });
 });
