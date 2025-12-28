@@ -5,7 +5,6 @@ import {
     Image as ImageIcon, X, Maximize2, Check,
     SkipBack, SkipForward
 } from 'lucide-react';
-import { io } from 'socket.io-client'; // Import Socket.IO client
 import { Plan } from '../types';
 
 interface PlannerWidgetProps {
@@ -20,37 +19,7 @@ interface ToolViewProps {
 // --- Mock Tool Components (Responsive & Animated) ---
 
 const BrowserView = ({ className = "", isActive = true }: ToolViewProps) => {
-    const [frame, setFrame] = useState<string>("");
-    const [status, setStatus] = useState("Connecting...");
-
-    useEffect(() => {
-        if (!isActive) return;
-
-        // Use dynamic socket URL: production uses same origin, dev uses localhost:3001
-        const SOCKET_URL = import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin;
-        const socket = io(SOCKET_URL);
-
-        socket.on('connect', () => {
-            setStatus("Connected");
-            socket.emit('start-browser');
-            // Navigate to Google initially to have something to show
-            socket.emit('navigate', 'https://www.google.com');
-        });
-
-        socket.on('browser-frame', (data: string) => {
-            setFrame(data);
-            setStatus("");
-        });
-
-        socket.on('disconnect', () => {
-            setStatus("Disconnected");
-        });
-
-        return () => {
-            socket.disconnect();
-        };
-    }, [isActive]);
-
+    // Note: Browser preview removed - now using Tavily API for search instead of local browser
     return (
         <div className={`bg-white flex flex-col font-sans w-full h-full overflow-hidden ${className}`}>
             {/* Chrome Header */}
@@ -61,24 +30,17 @@ const BrowserView = ({ className = "", isActive = true }: ToolViewProps) => {
                     <div className="w-2 h-2 rounded-full bg-green-400" />
                 </div>
                 <div className="flex-1 bg-white rounded flex items-center px-2 h-4 sm:h-5 shadow-sm ml-2 border border-gray-200">
-                    <div className="text-[8px] sm:text-[10px] text-gray-400 truncate flex-1 text-center">google.com</div>
+                    <div className="text-[8px] sm:text-[10px] text-gray-400 truncate flex-1 text-center">tavily.com</div>
                 </div>
             </div>
 
-            {/* Body with Live Stream */}
+            {/* Body - Static placeholder since we use Tavily API now */}
             <div className="flex-1 relative overflow-hidden bg-gray-50">
-                {frame ? (
-                    <img
-                        src={frame}
-                        alt="Live Browser"
-                        className="absolute inset-0 w-full h-full object-cover object-top"
-                    />
-                ) : (
-                    <div className="flex flex-col items-center justify-center h-full gap-2">
-                        <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                        <span className="text-xs text-gray-400">{status}</span>
-                    </div>
-                )}
+                <div className="flex flex-col items-center justify-center h-full gap-2">
+                    <Globe size={32} className="text-blue-500" />
+                    <span className="text-xs text-gray-600 font-medium">Tavily Web Search</span>
+                    <span className="text-[10px] text-gray-400">Powered by AI</span>
+                </div>
             </div>
         </div>
     );
