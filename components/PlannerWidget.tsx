@@ -5,6 +5,7 @@ import {
     Image as ImageIcon, X, Maximize2, Check,
     SkipBack, SkipForward
 } from 'lucide-react';
+import { io } from 'socket.io-client';
 import { Plan } from '../types';
 
 interface PlannerWidgetProps {
@@ -19,7 +20,47 @@ interface ToolViewProps {
 // --- Mock Tool Components (Responsive & Animated) ---
 
 const BrowserView = ({ className = "", isActive = true }: ToolViewProps) => {
-    // Note: Browser preview removed - now using Tavily API for search instead of local browser
+    const [liveViewUrl, setLiveViewUrl] = useState<string>('');
+    const [status, setStatus] = useState<string>('Initializing...');
+    const [error, setError] = useState<string>('');
+
+    useEffect(() => {
+        if (!isActive) return;
+
+        const SOCKET_URL = import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin;
+        const socket = io(SOCKET_URL);
+
+        socket.on('connect', () => {
+            console.log('[BrowserBase] Socket connected');
+            setStatus('Launching cloud browser...');
+            socket.emit('start-browser');
+        });
+
+        socket.on('browser-ready', (data: { liveViewUrl: string; sessionId: string }) => {
+            console.log('[BrowserBase] Browser ready:', data);
+            setLiveViewUrl(data.liveViewUrl);
+            setStatus('Connected');
+            setError('');
+        });
+
+        socket.on('browser-error', (errorData: { message: string }) => {
+            console.error('[BrowserBase] Error:', errorData);
+            setStatus('Error');
+            setError(errorData.message);
+        });
+
+        socket.on('disconnect', () => {
+            console.log('[BrowserBase] Socket disconnected');
+            setStatus('Disconnected');
+        });
+
+        return () => {
+            console.log('[BrowserBase] Cleaning up socket connection');
+            socket.emit('stop-browser');
+            socket.disconnect();
+        };
+    }, [isActive]);
+
     return (
         <div className={`bg-white flex flex-col font-sans w-full h-full overflow-hidden ${className}`}>
             {/* Chrome Header */}
@@ -30,17 +71,36 @@ const BrowserView = ({ className = "", isActive = true }: ToolViewProps) => {
                     <div className="w-2 h-2 rounded-full bg-green-400" />
                 </div>
                 <div className="flex-1 bg-white rounded flex items-center px-2 h-4 sm:h-5 shadow-sm ml-2 border border-gray-200">
-                    <div className="text-[8px] sm:text-[10px] text-gray-400 truncate flex-1 text-center">tavily.com</div>
+                    <div className="text-[8px] sm:text-[10px] text-gray-400 truncate flex-1 text-center">
+                        {liveViewUrl ? 'browserbase.com' : 'cloud browser'}
+                    </div>
                 </div>
             </div>
 
-            {/* Body - Static placeholder since we use Tavily API now */}
+            {/* Live Browser View */}
             <div className="flex-1 relative overflow-hidden bg-gray-50">
-                <div className="flex flex-col items-center justify-center h-full gap-2">
-                    <Globe size={32} className="text-blue-500" />
-                    <span className="text-xs text-gray-600 font-medium">Tavily Web Search</span>
-                    <span className="text-[10px] text-gray-400">Powered by AI</span>
-                </div>
+                {liveViewUrl ? (
+                    <iframe
+                        src={liveViewUrl}
+                        className="absolute inset-0 w-full h-full border-0"
+                        title="Live Browser Preview"
+                        allow="clipboard-read; clipboard-write"
+                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                    />
+                ) : error ? (
+                    <div className="flex flex-col items-center justify-center h-full gap-2 p-4">
+                        <Globe size={32} className="text-red-400" />
+                        <span className="text-xs text-red-600 font-medium">Browser Unavailable</span>
+                        <span className="text-[10px] text-gray-500 text-center">{error}</span>
+                        <span className="text-[9px] text-gray-400 text-center">Configure BROWSERBASE_API_KEY</span>
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center justify-center h-full gap-2">
+                        <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                        <span className="text-xs text-gray-600 font-medium">{status}</span>
+                        <span className="text-[10px] text-gray-400">BrowserBase Cloud</span>
+                    </div>
+                )}
             </div>
         </div>
     );
