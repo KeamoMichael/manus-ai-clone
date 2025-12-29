@@ -5,12 +5,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface SettingsModalProps {
     isOpen: boolean;
     onClose: () => void;
+    username: string;
+    setUsername: (name: string) => void;
+    isDarkMode: boolean;
+    setIsDarkMode: (isDark: boolean) => void;
 }
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
+export const SettingsModal: React.FC<SettingsModalProps> = ({
+    isOpen,
+    onClose,
+    username,
+    setUsername,
+    isDarkMode,
+    setIsDarkMode
+}) => {
     const [activeTab, setActiveTab] = useState<'profile' | 'appearance'>('profile');
-    const [darkMode, setDarkMode] = useState(false);
-    const [username, setUsername] = useState('Keamo');
 
     if (!isOpen) return null;
 
@@ -98,14 +107,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                             <ThemeOption
                                                 label="Light"
                                                 icon={<Sun size={24} />}
-                                                active={!darkMode}
-                                                onClick={() => setDarkMode(false)}
+                                                active={!isDarkMode}
+                                                onClick={() => setIsDarkMode(false)}
                                             />
                                             <ThemeOption
                                                 label="Dark"
                                                 icon={<Moon size={24} />}
-                                                active={darkMode}
-                                                onClick={() => setDarkMode(true)}
+                                                active={isDarkMode}
+                                                onClick={() => setIsDarkMode(true)}
                                             />
                                             <ThemeOption
                                                 label="System"

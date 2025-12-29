@@ -276,7 +276,7 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({
                     width: isOpen ? '260px' : '60px',
                     transition: { type: 'spring', damping: 30, stiffness: 300 }
                 }}
-                className="hidden md:flex flex-col bg-[#F9F9F9] border-r border-gray-200 overflow-hidden h-full z-20 shrink-0"
+                className="hidden md:flex flex-col bg-[#F9F9F9] dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 overflow-hidden h-full z-20 shrink-0"
             >
                 <div className="w-full h-full flex flex-col">
                     {/* Content Wrapper */}
@@ -285,7 +285,7 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({
                     </div>
 
                     {/* Desktop Footer: Profile & Username */}
-                    <div className="p-3 border-t border-gray-100/50 mt-auto shrink-0">
+                    <div className="p-3 border-t border-gray-100/50 dark:border-gray-800 mt-auto shrink-0">
                         <button
                             onClick={onOpenSettings}
                             className={`flex items-center ${isOpen ? 'gap-3 px-2' : 'justify-center'} w-full p-2 py-2.5 hover:bg-white hover:shadow-sm rounded-xl transition-all group border border-transparent hover:border-gray-100`}
@@ -301,8 +301,8 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({
                             {/* Username - Only visible when expanded */}
                             {isOpen && (
                                 <div className="flex flex-col items-start min-w-0 flex-1">
-                                    <span className="text-sm font-semibold text-gray-900 truncate w-full text-left">{username || 'User'}</span>
-                                    <span className="text-[10px] text-gray-500 truncate w-full text-left">Free Plan</span>
+                                    <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate w-full text-left">{username || 'User'}</span>
+                                    <span className="text-[10px] text-gray-500 dark:text-gray-400 truncate w-full text-left">Free Plan</span>
                                 </div>
                             )}
                         </button>
@@ -318,7 +318,7 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({
                         animate={{ x: 0 }}
                         exit={{ x: '-100%' }}
                         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                        className="fixed inset-0 bg-white z-[60] flex flex-col md:hidden"
+                        className="fixed inset-0 bg-white dark:bg-gray-900 z-[60] flex flex-col md:hidden"
                     >
                         <SidebarContent mobile={true} />
                     </motion.div>
