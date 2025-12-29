@@ -83,6 +83,11 @@ const BrowserView = ({ className = "", isActive = true }: ToolViewProps) => {
                     <iframe
                         src={liveViewUrl}
                         className="absolute inset-0 w-full h-full border-0"
+                        style={{
+                            objectFit: 'cover',
+                            transform: 'scale(1.1)',
+                            transformOrigin: 'center center'
+                        }}
                         title="Live Browser Preview"
                         allow="clipboard-read; clipboard-write"
                         sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
