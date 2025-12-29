@@ -12,6 +12,7 @@ import { generatePlan, executeStep, generateFinalReport, analyzeIntent, generate
 import { motion, AnimatePresence } from 'framer-motion';
 import { HistorySidebar } from './components/HistorySidebar';
 import { SettingsModal } from './components/SettingsModal';
+import { RenameChatModal } from './components/RenameChatModal';
 import { ChatHistory } from './types';
 import manusLogo from './assets/manus logo.png';
 import { Thinking } from './components/Thinking';
@@ -22,6 +23,7 @@ export default function App() {
   const [activeChatId, setActiveChatId] = useState<string>('');
   const [historyOpen, setHistoryOpen] = useState(false);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
+  const [renameModalOpen, setRenameModalOpen] = useState(false);
 
   // Current Chat State
   const [messages, setMessages] = useState<Message[]>([]);
