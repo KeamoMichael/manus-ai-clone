@@ -314,6 +314,8 @@ export const generateFinalReport = async (originalPrompt: string, stepSummaries:
 
     if (requestedFile && requestedFile.endsWith('.zip')) {
       // Generate ZIP archive with multiple files!
+      console.log('[ZIP Gen] Generating ZIP for:', requestedFile);
+
       const response = await ai.models.generateContent({
         model: 'gemini-2.0-flash',
         contents: `User requested: "${originalPrompt}"
@@ -333,24 +335,35 @@ Include proper code, dependencies, and documentation.
 Return ONLY the JSON, no markdown formatting.`
       });
 
+      console.log('[ZIP Gen] Got response, text length:', response.text.length);
+      console.log('[ZIP Gen] Response preview:', response.text.substring(0, 200));
+
       try {
         const filesData = JSON.parse(response.text);
+        console.log('[ZIP Gen] Parsed JSON successfully');
+        console.log('[ZIP Gen] Files count:', filesData?.files?.length);
+
         const zip = new JSZip();
 
         // Add all files to ZIP
         if (filesData.files && Array.isArray(filesData.files)) {
           filesData.files.forEach((file: { name: string, content: string }) => {
+            console.log('[ZIP Gen] Adding file:', file.name, 'size:', file.content.length);
             zip.file(file.name, file.content);
           });
 
+          console.log('[ZIP Gen] Generating compressed ZIP...');
           // Generate compressed ZIP as base64
           const zipBlob = await zip.generateAsync({ type: 'base64' });
+          console.log('[ZIP Gen] ZIP generated! Base64 length:', zipBlob.length);
           return zipBlob; // Return base64 ZIP data
         } else {
+          console.error('[ZIP Gen] Invalid file structure:', filesData);
           return '# Error: Invalid file structure';
         }
       } catch (parseError) {
-        console.error('ZIP generation error:', parseError);
+        console.error('[ZIP Gen] Parse/generation error:', parseError);
+        console.error('[ZIP Gen] Raw response:', response.text);
         return '# Error creating ZIP archive';
       }
     } else if (requestedFile) {

@@ -364,21 +364,33 @@ export default function App() {
                             if (msg.isZip) {
                               // Handle binary ZIP - convert base64 to blob
                               try {
+                                console.log('[ZIP Download] Starting...');
+                                console.log('[ZIP Download] Content length:', msg.content.length);
+                                console.log('[ZIP Download] First 100 chars:', msg.content.substring(0, 100));
+
                                 const binary = atob(msg.content);
+                                console.log('[ZIP Download] Base64 decoded, binary length:', binary.length);
+
                                 const bytes = new Uint8Array(binary.length);
                                 for (let i = 0; i < binary.length; i++) {
                                   bytes[i] = binary.charCodeAt(i);
                                 }
+                                console.log('[ZIP Download] Byte array created');
+
                                 const blob = new Blob([bytes], { type: 'application/zip' });
+                                console.log('[ZIP Download] Blob created, size:', blob.size);
+
                                 const url = URL.createObjectURL(blob);
                                 const a = document.createElement('a');
                                 a.href = url;
                                 a.download = msg.fileData!.name;
                                 a.click();
                                 URL.revokeObjectURL(url);
+                                console.log('[ZIP Download] Success!');
                               } catch (e) {
-                                console.error('ZIP download error:', e);
-                                alert('Error downloading ZIP file');
+                                console.error('[ZIP Download] ERROR:', e);
+                                console.error('[ZIP Download] Error details:', e instanceof Error ? e.message : String(e));
+                                alert(`Error downloading ZIP file: ${e instanceof Error ? e.message : 'Unknown error'}`);
                               }
                             } else {
                               // Handle regular text file
