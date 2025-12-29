@@ -521,9 +521,7 @@ export default function App() {
           ) : (
             <div className="max-w-2xl mx-auto space-y-6">
               {messages.map((msg, idx) => (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                <div
                   key={msg.id}
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
@@ -626,17 +624,13 @@ export default function App() {
                       )}
                     </div>
                   )}
-                </motion.div>
+                </div>
               ))}
 
               {agentState === AgentState.PLANNING && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                >
+                <div>
                   <Thinking modelTag={currentModel.tag} />
-                </motion.div>
+                </div>
               )}
 
               <div className="h-12" />
