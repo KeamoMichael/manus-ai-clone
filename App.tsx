@@ -155,8 +155,9 @@ export default function App() {
 
     // --- CASE B: Complex Task (Agentic Mode) ---
 
-    // Generate initial response (skip for file creation - we'll respond at the end with deliverable)
-    const initialFileMatch = userText.match(/(?:create|deliverable|named|file|save|package).*?([a-zA-Z0-9_-]+\.(py|js|html|css|json|txt|md|tsx|ts|jsx|zip))/i);
+    // Generate initial response (skip for file operations - we'll respond at the end with deliverable)
+    // Catch: create/modify/edit/change/update/save X.py OR mentions of existing files like hello.py
+    const initialFileMatch = userText.match(/(?:create|modify|edit|change|update|deliverable|named|file|save|package|the file|to).*?([a-zA-Z0-9_-]+\.(py|js|html|css|json|txt|md|tsx|ts|jsx|zip))/i);
     const isFileRequest = initialFileMatch !== null;
 
     let initialResponseContent = '';
@@ -242,7 +243,7 @@ export default function App() {
 
     // Check if user requested a specific file creation
     // Enhanced regex to catch: "create X.zip", "deliverable > X.zip", "named X.zip", etc.
-    const fileMatch = userText.match(/(?:create|deliverable|named|file|save|package).*?([a-zA-Z0-9_-]+\.(py|js|html|css|json|txt|md|tsx|ts|jsx|zip))/i);
+    const fileMatch = userText.match(/(?:create|modify|edit|change|update|deliverable|named|file|save|package|the file|to).*?([a-zA-Z0-9_-]+\.(py|js|html|css|json|txt|md|tsx|ts|jsx|zip))/i);
     const requestedFile = fileMatch ? fileMatch[1] : null;
 
     console.log('[File Detection] User text:', userText);
