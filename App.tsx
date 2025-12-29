@@ -444,6 +444,7 @@ export default function App() {
           currentModel={currentModel}
           setCurrentModel={setCurrentModel}
           onToggleHistory={() => setHistoryOpen(!historyOpen)}
+          historyOpen={historyOpen}
           chatId={activeChatId}
           chatTitle={getCurrentChatTitle()}
           onRenameChat={(newTitle) => renameChat(activeChatId, newTitle)}
@@ -659,7 +660,7 @@ export default function App() {
             </div>
           </div>
         </div>
-        </motion.div>
+      </motion.div>
     </div>
   );
 }

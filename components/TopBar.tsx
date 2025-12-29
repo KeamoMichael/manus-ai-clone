@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, Menu, Check } from 'lucide-react';
+import { ChevronDown, Menu, ChevronLeft, Check } from 'lucide-react';
 import { Model, MODELS } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatSettingsMenu } from './ChatSettingsMenu';
@@ -8,6 +8,7 @@ interface TopBarProps {
   currentModel: Model;
   setCurrentModel: (m: Model) => void;
   onToggleHistory: () => void;
+  historyOpen: boolean;
   chatId: string;
   chatTitle: string;
   onRenameChat: (newTitle: string) => void;
@@ -19,6 +20,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   currentModel,
   setCurrentModel,
   onToggleHistory,
+  historyOpen,
   chatId,
   chatTitle,
   onRenameChat,
@@ -30,13 +32,24 @@ export const TopBar: React.FC<TopBarProps> = ({
   return (
     <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-[#F9F9F9]/90 backdrop-blur-sm">
       <div className="flex items-center gap-3">
-        {/* History Toggle Button */}
+        {/* History Toggle - Desktop: always hamburger, Mobile: back arrow when open */}
         <button
           onClick={onToggleHistory}
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           title="Toggle history"
         >
-          <Menu size={20} className="text-gray-600" />
+          {/* Mobile: show back arrow when sidebar is open, hamburger when closed */}
+          <div className="md:hidden">
+            {historyOpen ? (
+              <ChevronLeft size={20} className="text-gray-600" />
+            ) : (
+              <Menu size={20} className="text-gray-600" />
+            )}
+          </div>
+          {/* Desktop: always show hamburger */}
+          <div className="hidden md:block">
+            <Menu size={20} className="text-gray-600" />
+          </div>
         </button>
 
         {/* Model Selector */}
@@ -56,14 +69,15 @@ export const TopBar: React.FC<TopBarProps> = ({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-10"
                   onClick={() => setIsOpen(false)}
-                  className="fixed inset-0 bg-black/5 z-10"
                 />
                 <motion.div
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  className="absolute top-full left-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 z-20 overflow-hidden"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-20"
                 >
                   {MODELS.map((model) => (
                     <button
@@ -72,15 +86,23 @@ export const TopBar: React.FC<TopBarProps> = ({
                         setCurrentModel(model);
                         setIsOpen(false);
                       }}
-                      className="w-full text-left p-4 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 relative"
+                      className={`w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors text-left ${currentModel.id === model.id ? 'bg-gray-50' : ''
+                        }`}
                     >
-                      <div className="flex items-center justify-between mb-1">
+                      <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-gray-900">{model.name}</span>
+                          <span className="font-medium text-sm text-gray-900">{model.name}</span>
+                          {model.tag && (
+                            <span className="text-[10px] bg-gray-200 px-1.5 py-0.5 rounded text-gray-600 font-medium">
+                              {model.tag}
+                            </span>
+                          )}
                         </div>
-                        {currentModel.id === model.id && <Check size={16} className="text-black" />}
+                        <p className="text-xs text-gray-500 mt-0.5">{model.description}</p>
                       </div>
-                      <p className="text-xs text-gray-500 leading-relaxed">{model.description}</p>
+                      {currentModel.id === model.id && (
+                        <Check size={16} className="text-gray-900 flex-shrink-0 ml-2" />
+                      )}
                     </button>
                   ))}
                 </motion.div>
