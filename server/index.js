@@ -1,7 +1,8 @@
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { DesktopSandbox } from '@e2b/desktop';
+import pkg from '@e2b/desktop';
+const { DesktopSandbox } = pkg;
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
