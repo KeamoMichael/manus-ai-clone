@@ -591,7 +591,7 @@ export default function App() {
               <div className="h-12" />
             </div>
           )}
-        </div>
+        </motion.div>
 
         <PlannerWidget plan={currentPlan} />
 
@@ -658,7 +658,7 @@ export default function App() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
     </div>
   );
 }
