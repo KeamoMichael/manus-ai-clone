@@ -14,7 +14,7 @@ import { HistorySidebar } from './components/HistorySidebar';
 import { SettingsModal } from './components/SettingsModal';
 import { RenameChatModal } from './components/RenameChatModal';
 import { ChatHistory } from './types';
-import manusLogo from './assets/manus logo.png';
+import manusLogo from './assets/Nexa AI agent logo PNG.png';
 import { Thinking } from './components/Thinking';
 
 import { AVAILABLE_MODELS } from './services/geminiService';

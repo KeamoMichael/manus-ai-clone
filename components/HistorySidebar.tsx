@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MessageSquare, MoreVertical, Edit2, Trash2, Share2, Plus, Search, PanelLeft, Edit3, ChevronDown, ChevronRight, ChevronLeft, User } from 'lucide-react';
 import { ChatHistory } from '../types';
-import manusLogo from '../assets/manus logo.png';
+import manusLogo from '../assets/Nexa AI agent logo PNG.png';
 import { SearchModal } from './SearchModal';
 
 interface HistorySidebarProps {
