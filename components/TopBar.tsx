@@ -66,6 +66,7 @@ export const TopBar: React.FC<TopBarProps> = ({
                   initial={{ opacity: 0, scale: 0.95, y: -5 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
                   className="absolute left-0 top-full mt-2 w-[320px] bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50 origin-top-left p-1.5"
                 >
                   <div className="flex flex-col gap-0.5">

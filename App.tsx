@@ -501,7 +501,7 @@ export default function App() {
                       <div className="flex items-center gap-1 mb-2">
                         <img src={manusLogo} alt="Manus" className="h-6 w-auto object-contain" />
                         <span className="text-[11px] bg-gray-200 px-2 py-0.5 rounded-md text-gray-500 font-medium">
-                          {msg.modelTag || currentModel.tag}
+                          {msg.modelTag}
                         </span>
                       </div>
 
