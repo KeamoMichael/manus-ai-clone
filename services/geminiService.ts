@@ -299,21 +299,47 @@ const classifyStepTool = async (step: string): Promise<'browser' | 'search' | 'k
   return 'knowledge';
 };
 
-// 6. Final Report
+// 7. Final Report Generation
 export const generateFinalReport = async (originalPrompt: string, stepSummaries: string[]): Promise<string> => {
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: `Generate a comprehensive final response for the user based on the executed steps.
-      Original Request: "${originalPrompt}"
-      
-      Execution Log:
-      ${stepSummaries.map((s, i) => `${i + 1}. ${s}`).join('\n')}
-      
-      Format with clear headings and bullet points. Keep it professional and concise.`,
-    });
-    return response.text || "Task completed.";
+    // Check if user requested a specific file
+    const fileMatch = originalPrompt.match(/create.*?([a-zA-Z0-9_-]+\.(py|js|html|css|json|txt|md|tsx|ts|jsx))/i);
+    const requestedFile = fileMatch ? fileMatch[1] : null;
+
+    if (requestedFile) {
+      // Generate ONLY the file code content - NO MARKDOWN!
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: `User requested: "${originalPrompt}"
+
+Generate ONLY the code content for ${requestedFile}. 
+Do NOT include any markdown formatting, explanations, or comments.
+Do NOT use code fences (backticks).
+Return ONLY the raw code that should be in the file.
+
+Example: if they asked for hello.py saying "Hello World!", return exactly:
+print("Hello World!")
+
+Just the code, nothing else.`
+      });
+
+      return response.text || '# Code generation failed';
+    } else {
+      // Generate a task summary (can use markdown here)
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: `Summarize this completed task in 2-3 sentences.
+        
+User asked: ${originalPrompt}
+Steps completed: ${stepSummaries.join(', ')}
+
+Be concise.`
+      });
+
+      return response.text || 'Task completed successfully.';
+    }
   } catch (error) {
-    return "Here is the result of your request based on the steps taken.";
+    console.error('Final report generation error:', error);
+    return requestedFile ? '# Error generating file' : 'Task completed with errors.';
   }
 };
