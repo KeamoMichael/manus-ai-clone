@@ -218,22 +218,75 @@ export const executeStep = async (step: string, context: string): Promise<string
           return results;
         }
       } catch (e) {
+        console.error('[Tavily] Search failed:', e);
+      }
+    }
+    // Fallback to Gemini if Tavily unavailable
+    console.log('[Agent] Tavily unavailable, using Gemini knowledge');
+  }
 
-        // 6. Final Report
-        export const generateFinalReport = async (originalPrompt: string, stepSummaries: string[]): Promise<string> => {
-          try {
-            const response = await ai.models.generateContent({
-              model: 'gemini-3-flash-preview',
-              contents: `Generate a comprehensive final response for the user based on the executed steps.
+  // --- GEMINI: General knowledge, coding, explanations ---
+  // This is also the fallback for failed searches
+  console.log(`[Agent] Using Gemini internal knowledge`);
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: `Given the following context and step, provide a detailed response to complete the step.
+      
+Context: ${context}
+
+Step to complete: ${step}
+
+Provide a comprehensive response:`,
+    });
+
+    return response.text || "Processing...";
+  } catch (e) {
+    return `Step processed: ${step}`;
+  }
+};
+
+// Helper: Classify which tool a step needs
+const classifyStepTool = async (step: string): Promise<'browser' | 'search' | 'knowledge'> => {
+  const lowerStep = step.toLowerCase();
+
+  // Simple keyword matching for speed
+  // BROWSER: Explicit navigation
+  if (lowerStep.includes('browse') || lowerStep.includes('visit') ||
+    lowerStep.includes('navigate to') || lowerStep.includes('open') && (lowerStep.includes('http') || lowerStep.includes('.com') || lowerStep.includes('.org'))) {
+    return 'browser';
+  }
+
+  // SEARCH: Current events, facts, "what's happening", recent info
+  if ((lowerStep.includes('search') || lowerStep.includes('find') ||
+    lowerStep.includes('look up') || lowerStep.includes('research')) &&
+    (lowerStep.includes('latest') || lowerStep.includes('recent') ||
+      lowerStep.includes('current') || lowerStep.includes('news') ||
+      lowerStep.includes('today') || lowerStep.includes('this week') ||
+      lowerStep.includes('what is happening') || lowerStep.includes("what's new"))) {
+    return 'search';
+  }
+
+  // KNOWLEDGE: Everything else (explanations, coding, general questions)
+  // This includes: "explain X", "what is X", "how does X work", "write code for X"
+  return 'knowledge';
+};
+
+// 6. Final Report
+export const generateFinalReport = async (originalPrompt: string, stepSummaries: string[]): Promise<string> => {
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: `Generate a comprehensive final response for the user based on the executed steps.
       Original Request: "${originalPrompt}"
       
       Execution Log:
       ${stepSummaries.map((s, i) => `${i + 1}. ${s}`).join('\n')}
       
       Format with clear headings and bullet points. Keep it professional and concise.`,
-            });
-            return response.text || "Task completed.";
-          } catch (error) {
-            return "Here is the result of your request based on the steps taken.";
-          }
-        };
+    });
+    return response.text || "Task completed.";
+  } catch (error) {
+    return "Here is the result of your request based on the steps taken.";
+  }
+};
