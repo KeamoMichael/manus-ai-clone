@@ -303,7 +303,7 @@ const classifyStepTool = async (step: string): Promise<'browser' | 'search' | 'k
 export const generateFinalReport = async (originalPrompt: string, stepSummaries: string[]): Promise<string> => {
   try {
     // Check if user requested a specific file
-    const fileMatch = originalPrompt.match(/create.*?([a-zA-Z0-9_-]+\.(py|js|html|css|json|txt|md|tsx|ts|jsx))/i);
+    const fileMatch = originalPrompt.match(/create.*?([a-zA-Z0-9_-]+\.(py|js|html|css|json|txt|md|tsx|ts|jsx|zip))/i);
     const requestedFile = fileMatch ? fileMatch[1] : null;
 
     if (requestedFile) {
@@ -340,6 +340,8 @@ Be concise.`
     }
   } catch (error) {
     console.error('Final report generation error:', error);
+    const fileMatch = originalPrompt.match(/create.*?([a-zA-Z0-9_-]+\.(py|js|html|css|json|txt|md|tsx|ts|jsx|zip))/i);
+    const requestedFile = fileMatch ? fileMatch[1] : null;
     return requestedFile ? '# Error generating file' : 'Task completed with errors.';
   }
 };

@@ -233,7 +233,7 @@ export default function App() {
     if (isStoppedRef.current) { handleTermination(); return; }
 
     // Check if user requested a specific file creation
-    const fileMatch = userText.match(/create.*?([a-zA-Z0-9_-]+\.(py|js|html|css|json|txt|md|tsx|ts|jsx))/i);
+    const fileMatch = userText.match(/create.*?([a-zA-Z0-9_-]+\.(py|js|html|css|json|txt|md|tsx|ts|jsx|zip))/i);
     const requestedFile = fileMatch ? fileMatch[1] : null;
 
     let finalContent = '';
@@ -257,7 +257,8 @@ export default function App() {
         'css': 'CSS',
         'json': 'JSON',
         'txt': 'Text',
-        'md': 'Markdown'
+        'md': 'Markdown',
+        'zip': 'ZIP Archive'
       };
       fileType = typeMap[extension] || 'Code';
     } else {
@@ -349,9 +350,21 @@ export default function App() {
 
                     {msg.type === 'file' && msg.fileData && (
                       <div className="mt-4">
-                        <p className="text-gray-800 text-[15px] leading-relaxed mb-3">{msg.content.split('\n')[0]}...</p>
+                        <p className="text-gray-800 text-[15px] leading-relaxed mb-3">{msg.content.substring(0, 150)}...</p>
 
-                        <div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center justify-between hover:bg-gray-50 transition-colors cursor-pointer group shadow-sm">
+                        <div
+                          className="bg-white border border-gray-200 rounded-xl p-4 flex items-center justify-between hover:bg-gray-50 transition-colors cursor-pointer group shadow-sm"
+                          onClick={() => {
+                            // Create downloadable blob
+                            const blob = new Blob([msg.content], { type: 'text/plain' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = msg.fileData.name;
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          }}
+                        >
                           <div className="flex items-center gap-4">
                             <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
                               <FileText className="text-white" size={20} />
