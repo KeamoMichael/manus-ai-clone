@@ -1,8 +1,7 @@
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import pkg from '@e2b/desktop';
-const { DesktopSandbox } = pkg;
+import { Sandbox } from '@e2b/desktop';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -60,7 +59,7 @@ io.on('connection', (socket) => {
       console.log('[E2B] Creating desktop sandbox...');
 
       // Create E2B desktop sandbox
-      const sandbox = await DesktopSandbox.create({
+      const sandbox = await Sandbox.create({
         apiKey: process.env.E2B_API_KEY,
         timeout: 3600000, // 1 hour
       });
