@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, MessageSquare, MoreVertical, Edit2, Trash2, Share2, Plus, Search, PanelLeft, Edit3, ChevronDown, ChevronRight, ChevronLeft, User } from 'lucide-react';
 import { ChatHistory } from '../types';
 import manusLogo from '../assets/manus logo.png';
+import { SearchModal } from './SearchModal';
 
 interface HistorySidebarProps {
     isOpen: boolean;
@@ -84,9 +85,19 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({
     // Sidebar Content Component
     const SidebarContent = ({ mobile = false }: { mobile?: boolean }) => {
         const showFull = mobile || isOpen;
+        const [isSearchOpen, setIsSearchOpen] = useState(false);
 
         return (
             <div className="flex flex-col h-full w-full">
+                {/* Search Modal */}
+                <SearchModal
+                    isOpen={isSearchOpen}
+                    onClose={() => setIsSearchOpen(false)}
+                    chats={chats}
+                    onSelectChat={onSelectChat}
+                    onNewChat={onNewChat}
+                />
+
                 {/* Header */}
                 <div className={`flex items-center h-14 min-h-[56px] px-3 border-b border-gray-100/50 ${showFull ? 'justify-between' : 'justify-center'} relative`}>
 
@@ -143,6 +154,7 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({
                     </button>
 
                     <button
+                        onClick={() => setIsSearchOpen(true)}
                         className={`flex items-center ${showFull ? 'gap-3 px-3' : 'justify-center'} py-2 rounded-lg hover:bg-gray-200 transition-colors group w-full`}
                         title="Search"
                     >
@@ -273,7 +285,7 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({
                     </div>
 
                     {/* Desktop Footer: Profile & Username */}
-                    <div className="p-3 border-t border-gray-100/50 mt-auto">
+                    <div className="p-3 border-t border-gray-100/50 mt-auto shrink-0">
                         <button
                             onClick={onOpenSettings}
                             className={`flex items-center ${isOpen ? 'gap-3 px-2' : 'justify-center'} w-full p-2 py-2.5 hover:bg-white hover:shadow-sm rounded-xl transition-all group border border-transparent hover:border-gray-100`}
