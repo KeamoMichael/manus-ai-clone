@@ -2,32 +2,32 @@ import React, { useState } from 'react';
 import { Copy, Check, FileCode, Terminal } from 'lucide-react';
 
 interface MessageRendererProps {
-  content: string;
+    content: string;
 }
 
 export const MessageRenderer: React.FC<MessageRendererProps> = ({ content }) => {
-  // Split by code blocks
-  const parts = content.split(/(```[\s\S]*?```)/g);
+    // Split by code blocks
+    const parts = content.split(/(```[\s\S]*?```)/g);
 
-  return (
-    <div className="space-y-5 text-[15px] leading-7 text-gray-800 font-normal font-sans">
-      {parts.map((part, index) => {
-        if (part.startsWith('```')) {
-          const match = part.match(/```(\w+)?\n([\s\S]*?)```/);
-          const lang = match ? match[1] : '';
-          const code = match ? match[2] : part.slice(3, -3);
-          return <CodeBlock key={index} language={lang || ''} code={code.trim()} />;
-        } else {
-          return <MarkdownText key={index} text={part} />;
-        }
-      })}
-    </div>
-  );
+    return (
+        <div className="space-y-5 text-[15px] leading-7 text-gray-800 font-normal font-sans">
+            {parts.map((part, index) => {
+                if (part.startsWith('```')) {
+                    const match = part.match(/```(\w+)?\n([\s\S]*?)```/);
+                    const lang = match ? match[1] : '';
+                    const code = match ? match[2] : part.slice(3, -3);
+                    return <CodeBlock key={index} language={lang || ''} code={code.trim()} />;
+                } else {
+                    return <MarkdownText key={index} text={part} />;
+                }
+            })}
+        </div>
+    );
 };
 
 interface CodeBlockProps {
-  language: string;
-  code: string;
+    language: string;
+    code: string;
 }
 
 const CodeBlock: React.FC<CodeBlockProps> = ({ language, code }) => {
@@ -42,16 +42,16 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ language, code }) => {
     // Basic syntax highlighting for demo purposes
     const highlightedCode = code.split(/(\b(?:def|class|return|import|from|if|else|while|for|in|try|except|await|async|const|let|var|function|true|false|null|undefined)\b|"[^"]*"|'[^']*'|#[^\n]*)/g).map((part, i) => {
         if (['def', 'class', 'return', 'import', 'from', 'if', 'else', 'while', 'for', 'in', 'try', 'except', 'await', 'async', 'const', 'let', 'var', 'function'].includes(part)) {
-             return <span key={i} className="text-purple-600 font-semibold">{part}</span>;
+            return <span key={i} className="text-purple-600 font-semibold">{part}</span>;
         }
         if (['true', 'false', 'null', 'undefined'].includes(part)) {
-             return <span key={i} className="text-blue-600">{part}</span>;
+            return <span key={i} className="text-blue-600">{part}</span>;
         }
         if (part.startsWith('"') || part.startsWith("'")) {
-             return <span key={i} className="text-green-600">{part}</span>;
+            return <span key={i} className="text-green-600">{part}</span>;
         }
         if (part.startsWith('#')) {
-             return <span key={i} className="text-gray-400 italic">{part}</span>;
+            return <span key={i} className="text-gray-400 italic">{part}</span>;
         }
         return part;
     });
@@ -78,13 +78,13 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ language, code }) => {
 };
 
 interface MarkdownTextProps {
-  text: string;
+    text: string;
 }
 
 const MarkdownText: React.FC<MarkdownTextProps> = ({ text }) => {
     // Process paragraphs, handling multiple newlines
     const paragraphs = text.split(/\n\n+/).filter(Boolean);
-    
+
     return (
         <>
             {paragraphs.map((para, i) => {
@@ -93,23 +93,23 @@ const MarkdownText: React.FC<MarkdownTextProps> = ({ text }) => {
                     const level = para.match(/^#{1,6}/)![0].length;
                     const content = para.replace(/^#{1,6}\s/, '');
                     const sizes = ['text-3xl', 'text-2xl', 'text-xl', 'text-lg', 'text-base', 'text-sm'];
-                    const className = `font-serif font-bold text-gray-900 mt-6 mb-3 ${sizes[level-1] || 'text-base'} tracking-tight`;
+                    const className = `font-sans font-bold text-gray-900 mt-6 mb-3 ${sizes[level - 1] || 'text-base'} tracking-tight`;
                     return <div key={i} className={className}>{parseInline(content)}</div>;
                 }
-                
+
                 // Unordered List
                 if (para.match(/^[\*\-]\s/m)) {
-                     const items = para.split(/\n/).filter(l => l.match(/^\s*[\*\-]\s/));
-                     return (
-                         <ul key={i} className="space-y-2 mb-4">
-                             {items.map((item, j) => (
-                                 <li key={j} className="flex gap-3 text-gray-700">
-                                     <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-gray-400 mt-2.5" />
-                                     <span>{parseInline(item.replace(/^\s*[\*\-]\s/, ''))}</span>
-                                 </li>
-                             ))}
-                         </ul>
-                     );
+                    const items = para.split(/\n/).filter(l => l.match(/^\s*[\*\-]\s/));
+                    return (
+                        <ul key={i} className="space-y-2 mb-4">
+                            {items.map((item, j) => (
+                                <li key={j} className="flex gap-3 text-gray-700">
+                                    <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-gray-400 mt-2.5" />
+                                    <span>{parseInline(item.replace(/^\s*[\*\-]\s/, ''))}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    );
                 }
 
                 // Ordered List (basic support)
@@ -122,21 +122,21 @@ const MarkdownText: React.FC<MarkdownTextProps> = ({ text }) => {
                             ))}
                         </ol>
                     );
-               }
+                }
 
                 // Blockquote / Callout
                 if (para.startsWith('> ')) {
-                     const content = para.replace(/^>\s+/, '');
-                     // Check for specific callout types conceptually (simulated)
-                     const isWarning = content.toLowerCase().includes('limit') || content.toLowerCase().includes('warning');
-                     
-                     return (
-                         <div key={i} className={`flex gap-3 pl-4 pr-4 py-3 my-5 rounded-lg border-l-4 ${isWarning ? 'bg-amber-50 border-amber-400' : 'bg-gray-50 border-gray-300'}`}>
-                             <div className="italic text-gray-700 leading-relaxed">
-                                 {parseInline(content)}
-                             </div>
-                         </div>
-                     );
+                    const content = para.replace(/^>\s+/, '');
+                    // Check for specific callout types conceptually (simulated)
+                    const isWarning = content.toLowerCase().includes('limit') || content.toLowerCase().includes('warning');
+
+                    return (
+                        <div key={i} className={`flex gap-3 pl-4 pr-4 py-3 my-5 rounded-lg border-l-4 ${isWarning ? 'bg-amber-50 border-amber-400' : 'bg-gray-50 border-gray-300'}`}>
+                            <div className="italic text-gray-700 leading-relaxed">
+                                {parseInline(content)}
+                            </div>
+                        </div>
+                    );
                 }
 
                 return <p key={i} className="mb-4 text-gray-800">{parseInline(para)}</p>;

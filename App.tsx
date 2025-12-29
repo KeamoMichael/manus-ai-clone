@@ -312,7 +312,7 @@ export default function App() {
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-5xl md:text-6xl font-serif text-center text-gray-800 leading-tight tracking-tight"
+              className="text-5xl md:text-6xl font-sans font-semibold text-center text-gray-800 leading-tight tracking-tight"
             >
               {getWelcomeMessage()}
             </motion.h1>
