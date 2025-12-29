@@ -10,6 +10,19 @@ if (!apiKey) {
 }
 const ai = new GoogleGenAI({ apiKey });
 
+export interface Model {
+  id: string;
+  name: string;
+  displayName: string;
+  tag: string;
+}
+
+export const AVAILABLE_MODELS: Model[] = [
+  { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash', displayName: 'Gemini 2.0 Flash', tag: 'gemini-2.0-flash-exp' },
+  { id: 'gemini-exp-1206', name: 'Gemini Exp 1206', displayName: 'Gemini Advanced', tag: 'gemini-exp-1206' },
+  { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', displayName: 'Gemini 1.5 Pro', tag: 'gemini-1.5-pro' },
+];
+
 // Socket.IO connection for E2B browser control
 const SOCKET_URL = import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin;
 let browserSocket: Socket | null = null;
