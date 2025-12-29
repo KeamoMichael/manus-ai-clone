@@ -88,12 +88,12 @@ io.on('connection', (socket) => {
       console.log(`✓ Desktop sandbox ready: ${sandbox.sandboxId}`);
       console.log(`✓ Stream URL: ${streamUrl}`);
 
-      // Optional: Open Chrome automatically
+      // Optional: Open Chrome automatically with Google homepage
       try {
-        await sandbox.launch('google-chrome');
-        console.log('✓ Chrome launched');
+        await sandbox.commands.run('DISPLAY=:1 google-chrome --no-sandbox --disable-dev-shm-usage https://google.com &');
+        console.log('✓ Chrome launched with Google homepage');
       } catch (e) {
-        console.log('Note: Chrome launch failed (may not be pre-installed)');
+        console.log('Note: Chrome launch failed (may not be pre-installed):', e.message);
       }
 
     } catch (error) {
@@ -111,12 +111,21 @@ io.on('connection', (socket) => {
     }
 
     try {
-      // Open URL in Chrome using launch
-      await session.sandbox.launch(`google-chrome ${url}`);
+      // Use command execution to open Chrome with the URL
+      // First, ensure Chrome is killed if running
+      await session.sandbox.commands.run('pkill chrome || true');
+
+      // Wait a moment for Chrome to close
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Now open Chrome with the specific URL
+      await session.sandbox.commands.run(`DISPLAY=:1 google-chrome --no-sandbox --disable-dev-shm-usage "${url}" &`);
+
       socket.emit('navigation-complete');
       console.log(`✓ Navigated to: ${url}`);
     } catch (error) {
       console.error('Navigation failed:', error);
+      socket.emit('navigation-complete'); // Still emit to prevent hanging
     }
   });
 

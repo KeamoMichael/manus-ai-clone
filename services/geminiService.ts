@@ -134,29 +134,56 @@ export const generatePlan = async (prompt: string): Promise<string[]> => {
   }
 };
 
-// 4. Generate Dynamic Logs for a Step
-export const generateStepLogs = async (stepDescription: string, context: string): Promise<string[]> => {
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: `For the agentic task step: "${stepDescription}", generate 2 or 3 short, realistic "system log" status updates that an AI would report while executing this.
-            Context: ${context}
-            Examples: "Searching Tavily for X...", "Reading documentation...", "Parsing dataset...", "Running python script..."
-            Keep them under 8 words.
-            Return ONLY a JSON array of strings.`,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.ARRAY,
-          items: { type: Type.STRING }
-        }
-      }
-    });
-    const text = response.text;
-    if (!text) return ["Processing..."];
-    return JSON.parse(text) as string[];
-  } catch (e) {
-    return ["Processing step...", "Analyzing data..."];
+// 4. Generate Step Logs (for visual progress) - Now tool-aware
+export const generateStepLogs = async (step: string, context: string): Promise<string[]> => {
+  // Classify the tool type to generate appropriate logs
+  const toolType = await classifyStepTool(step);
+
+  const lowerStep = step.toLowerCase();
+
+  // Return logs with keywords that trigger correct icons
+  if (toolType === 'browser') {
+    // Browsing → Globe icon
+    const urlMatch = step.match(/(https?:\/\/[^\s]+|[a-z0-9-]+\.[a-z]+)/i);
+    const site = urlMatch ? urlMatch[0] : 'website';
+    return [
+      'Browsing ' + site,
+      'Reading page content...'
+    ];
+  }
+
+  else if (toolType === 'search') {
+    // Searching → Search icon
+    const query = step.replace(/search|find|look up|research|google|for|the|web|internet/gi, '').trim();
+    return [
+      'Searching for ' + (query || step),
+      'Analyzing search results...'
+    ];
+  }
+
+  else {
+    // General knowledge - check if it's code/file related
+    if (lowerStep.includes('create') && (lowerStep.includes('file') || lowerStep.includes('.py') || lowerStep.includes('.js') || lowerStep.includes('.md'))) {
+      // Writing file → FileText icon
+      return [
+        'Writing file...',
+        'Saving changes...'
+      ];
+    }
+
+    if (lowerStep.includes('execute') || lowerStep.includes('command') || lowerStep.includes('run')) {
+      // Terminal command → Terminal icon
+      return [
+        'Executing command...',
+        'Processing output...'
+      ];
+    }
+
+    // Default processing logs
+    return [
+      'Processing request...',
+      'Generating response...'
+    ];
   }
 };
 
