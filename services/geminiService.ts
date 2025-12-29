@@ -339,7 +339,16 @@ Return ONLY the JSON, no markdown formatting.`
       console.log('[ZIP Gen] Response preview:', response.text.substring(0, 200));
 
       try {
-        const filesData = JSON.parse(response.text);
+        // Strip markdown code fences if Gemini added them
+        let jsonText = response.text.trim();
+        if (jsonText.startsWith('```json')) {
+          jsonText = jsonText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        } else if (jsonText.startsWith('```')) {
+          jsonText = jsonText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+        }
+        console.log('[ZIP Gen] Cleaned JSON, length:', jsonText.length);
+
+        const filesData = JSON.parse(jsonText);
         console.log('[ZIP Gen] Parsed JSON successfully');
         console.log('[ZIP Gen] Files count:', filesData?.files?.length);
 
