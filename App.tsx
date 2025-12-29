@@ -7,6 +7,7 @@ import { LoginModal } from './components/LoginModal';
 import { MessageRenderer } from './components/MessageRenderer';
 import { Message, AgentState, Plan, Model, MODELS } from './types';
 import { Plus, ArrowUp, FileText, Download, Check, Square, Mic } from 'lucide-react';
+import { detectFileOperation, getFileOperationAck } from './utils/fileOperationDetector';
 import { generatePlan, executeStep, generateFinalReport, analyzeIntent, generateChatResponse, generateStepLogs } from './services/geminiService';
 import { motion, AnimatePresence } from 'framer-motion';
 import manusLogo from './assets/manus logo.png';
@@ -155,18 +156,16 @@ export default function App() {
 
     // --- CASE B: Complex Task (Agentic Mode) ---
 
-    // Generate initial response (skip for file operations - we'll respond at the end with deliverable)
-    // Catch: create/modify/edit/change/update/save X.py OR mentions of existing files like hello.py
-    const initialFileMatch = userText.match(/(?:create|modify|edit|change|update|deliverable|named|file|save|package|the file|to).*?([a-zA-Z0-9_-]+\.(py|js|html|css|json|txt|md|tsx|ts|jsx|zip))/i);
-    const isFileRequest = initialFileMatch !== null;
+    // Intelligent file operation detection using comprehensive keyword library
+    const fileOp = detectFileOperation(userText);
 
     let initialResponseContent = '';
-    if (!isFileRequest) {
+    if (!fileOp.isFileOperation) {
       // Only generate detailed response for non-file requests
       initialResponseContent = await generateChatResponse(`Acknowledge the user's request: "${userText}". Be brief and natural, 1-2 sentences max.`);
     } else {
-      // For file requests, just acknowledge and proceed to execution
-      initialResponseContent = `I'll create ${initialFileMatch[1]} for you.`;
+      // For file requests, use appropriate acknowledgment
+      initialResponseContent = getFileOperationAck(fileOp.fileName!, fileOp.operationType);
     }
 
     setMessages(prev => [...prev, {
@@ -238,16 +237,14 @@ export default function App() {
       await new Promise(r => setTimeout(r, 500)); // Brief pause before next step
     }
 
-    // 4. Finalize - Detect if user requested a specific file
+    // 4. Finalize - Detect if user requested a specific file using intelligent detector
     if (isStoppedRef.current) { handleTermination(); return; }
 
-    // Check if user requested a specific file creation
-    // Enhanced regex to catch: "create X.zip", "deliverable > X.zip", "named X.zip", etc.
-    const fileMatch = userText.match(/(?:create|modify|edit|change|update|deliverable|named|file|save|package|the file|to).*?([a-zA-Z0-9_-]+\.(py|js|html|css|json|txt|md|tsx|ts|jsx|zip))/i);
-    const requestedFile = fileMatch ? fileMatch[1] : null;
+    const finalFileOp = detectFileOperation(userText);
+    const requestedFile = finalFileOp.fileName;
 
     console.log('[File Detection] User text:', userText);
-    console.log('[File Detection] Regex match:', fileMatch);
+    console.log('[File Detection] Operation:', finalFileOp);
     console.log('[File Detection] Requested file:', requestedFile);
 
     let finalContent = '';
