@@ -37,16 +37,9 @@ export const TopBar: React.FC<TopBarProps> = ({
         <button
           onClick={onToggleHistory}
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors md:hidden"
-          title="Toggle history"
+          title="History"
         >
-          {/* Mobile: show back arrow when sidebar is open, hamburger when closed */}
-          <div>
-            {historyOpen ? (
-              <ChevronLeft size={20} className="text-gray-600" />
-            ) : (
-              <Menu size={20} className="text-gray-600" />
-            )}
-          </div>
+          <ChevronLeft size={20} className="text-gray-600" />
         </button>
 
         {/* Model Selector */}

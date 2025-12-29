@@ -86,31 +86,25 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({
         return (
             <div className="flex flex-col h-full w-full">
                 {/* Header */}
-                <div className={`flex items-center h-14 min-h-[56px] px-3 border-b border-transparent ${showFull ? 'justify-between' : 'justify-center'}`}>
+                <div className={`flex items-center h-14 min-h-[56px] px-3 border-b border-gray-100/50 ${showFull ? 'justify-between' : 'justify-center'} relative`}>
 
-                    {/* Mobile Header Layout: Back Arrow (Left), Logo (Center), Settings Right */}
+                    {/* Mobile Header Layout: Logo (Center), Settings Right */}
                     {mobile ? (
                         <>
-                            {/* Left: Close Sidebar */}
-                            <button
-                                onClick={onClose}
-                                className="p-2 hover:bg-gray-100 rounded-full text-gray-600 transition-colors"
-                            >
-                                <ChevronLeft size={20} />
-                            </button>
-
                             {/* Center: Logo */}
                             <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center">
                                 <img src={manusLogo} alt="Manus" className="h-6 w-auto object-contain max-w-[100px]" />
                             </div>
 
                             {/* Right: Settings User Icon */}
-                            <button
-                                onClick={onOpenSettings}
-                                className="p-2 hover:bg-gray-100 rounded-full text-gray-600 transition-colors"
-                            >
-                                <User size={20} />
-                            </button>
+                            <div className="ml-auto">
+                                <button
+                                    onClick={onOpenSettings}
+                                    className="p-2 hover:bg-gray-100 rounded-full text-gray-600 transition-colors"
+                                >
+                                    <User size={20} />
+                                </button>
+                            </div>
                         </>
                     ) : (
                         // Desktop Header Layout
@@ -248,7 +242,7 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({
 
     return (
         <>
-            {/* Mobile Backdrop */}
+            {/* Mobile Backdrop - Kept for fade-in effect but fully covered by sidebar */}
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
@@ -275,7 +269,7 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({
                 </div>
             </motion.div>
 
-            {/* Mobile Sidebar - Fixed Overlay */}
+            {/* Mobile Sidebar - Fixed Full Window Overlay */}
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
@@ -283,7 +277,7 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({
                         animate={{ x: 0 }}
                         exit={{ x: '-100%' }}
                         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                        className="fixed left-0 top-0 h-full w-[280px] bg-white border-r border-gray-200 z-50 flex flex-col shadow-lg md:hidden"
+                        className="fixed inset-0 bg-white z-[60] flex flex-col md:hidden"
                     >
                         <SidebarContent mobile={true} />
                     </motion.div>

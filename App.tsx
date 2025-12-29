@@ -441,245 +441,238 @@ export default function App() {
         onClose={() => setSettingsOpen(false)}
       />
 
-      {/* Main Content - Pushes right when sidebar opens */}
+      <RenameChatModal
+        isOpen={renameModalOpen}
+        onClose={() => setRenameModalOpen(false)}
+        onRename={(newTitle) => renameChat(activeChatId, newTitle)}
+        currentTitle={getCurrentChatTitle()}
+      />
+
       <motion.div
         className="flex-1 flex flex-col min-w-0 relative"
       >
 
-        const [renameModalOpen, setRenameModalOpen] = useState(false);
-
-        // ... (inside return)
-
-        <RenameChatModal
-          isOpen={renameModalOpen}
-          onClose={() => setRenameModalOpen(false)}
-          onRename={(newTitle) => renameChat(activeChatId, newTitle)}
-          currentTitle={getCurrentChatTitle()}
+        <TopBar
+          currentModel={currentModel}
+          onModelChange={setCurrentModel}
+          onToggleHistory={() => setHistoryOpen(!historyOpen)}
+          historyOpen={historyOpen}
+          currentChatId={activeChatId}
+          currentChatTitle={getCurrentChatTitle()}
+          onOpenRenameModal={() => setRenameModalOpen(true)}
+          onDeleteChat={() => deleteChat(activeChatId)}
+          onShareChat={shareChat}
         />
+        <LoginModal isOpen={isLoginRequired} onLogin={handleLogin} />
 
-        <motion.div className="flex-1 flex flex-col min-w-0 relative">
-
-          <TopBar
-            currentModel={currentModel}
-            onModelChange={setCurrentModel}
-            onToggleHistory={() => setHistoryOpen(!historyOpen)}
-            historyOpen={historyOpen}
-            currentChatId={activeChatId}
-            currentChatTitle={getCurrentChatTitle()}
-            onOpenRenameModal={() => setRenameModalOpen(true)}
-            onDeleteChat={() => deleteChat(activeChatId)}
-            onShareChat={shareChat}
-          />
-          <LoginModal isOpen={isLoginRequired} onLogin={handleLogin} />
-
-          {/* Main Content Area */}
-          <div
-            ref={scrollRef}
-            className="flex-1 overflow-y-auto pt-20 pb-40 px-4 scroll-smooth"
-          >
-            {messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center -mt-20">
-                <motion.h1
+        {/* Main Content Area */}
+        <div
+          ref={scrollRef}
+          className="flex-1 overflow-y-auto pt-20 pb-40 px-4 scroll-smooth"
+        >
+          {messages.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center -mt-20">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-5xl md:text-6xl font-sans font-semibold text-center text-gray-800 leading-tight tracking-tight"
+              >
+                {getWelcomeMessage()}
+              </motion.h1>
+            </div>
+          ) : (
+            <div className="max-w-2xl mx-auto space-y-6">
+              {messages.map((msg, idx) => (
+                <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-5xl md:text-6xl font-sans font-semibold text-center text-gray-800 leading-tight tracking-tight"
+                  key={msg.id}
+                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  {getWelcomeMessage()}
-                </motion.h1>
-              </div>
-            ) : (
-              <div className="max-w-2xl mx-auto space-y-6">
-                {messages.map((msg, idx) => (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    key={msg.id}
-                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    {msg.role === 'user' ? (
-                      <div className="bg-gray-100 px-5 py-3 rounded-2xl rounded-tr-sm text-gray-800 max-w-[85%] text-[15px] leading-relaxed">
-                        {msg.content}
+                  {msg.role === 'user' ? (
+                    <div className="bg-gray-100 px-5 py-3 rounded-2xl rounded-tr-sm text-gray-800 max-w-[85%] text-[15px] leading-relaxed">
+                      {msg.content}
+                    </div>
+                  ) : (
+                    <div className="w-full">
+                      <div className="flex items-center gap-1 mb-2">
+                        <img src={manusLogo} alt="Manus" className="h-6 w-auto object-contain" />
+                        <span className="text-[11px] bg-gray-200 px-2 py-0.5 rounded-md text-gray-500 font-medium">
+                          {msg.modelTag || currentModel.tag}
+                        </span>
                       </div>
-                    ) : (
-                      <div className="w-full">
-                        <div className="flex items-center gap-1 mb-2">
-                          <img src={manusLogo} alt="Manus" className="h-6 w-auto object-contain" />
-                          <span className="text-[11px] bg-gray-200 px-2 py-0.5 rounded-md text-gray-500 font-medium">
-                            {msg.modelTag || currentModel.tag}
-                          </span>
+
+                      {msg.type === 'text' && (
+                        <div className="mb-4">
+                          <MessageRenderer content={msg.content} />
                         </div>
+                      )}
 
-                        {msg.type === 'text' && (
-                          <div className="mb-4">
-                            <MessageRenderer content={msg.content} />
-                          </div>
-                        )}
+                      {msg.type === 'plan' && msg.plan && (
+                        <InlinePlanWidget plan={msg.plan} />
+                      )}
 
-                        {msg.type === 'plan' && msg.plan && (
-                          <InlinePlanWidget plan={msg.plan} />
-                        )}
+                      {msg.type === 'file' && msg.fileData && (
+                        <div className="mt-4">
+                          <p className="text-gray-800 text-[15px] leading-relaxed mb-3">
+                            {msg.isZip
+                              ? `I've created ${msg.fileData.name} with all the necessary project files compressed and ready for download.`
+                              : `I've created the file ${msg.fileData.name} for you.`
+                            }
+                          </p>
 
-                        {msg.type === 'file' && msg.fileData && (
-                          <div className="mt-4">
-                            <p className="text-gray-800 text-[15px] leading-relaxed mb-3">
-                              {msg.isZip
-                                ? `I've created ${msg.fileData.name} with all the necessary project files compressed and ready for download.`
-                                : `I've created the file ${msg.fileData.name} for you.`
-                              }
-                            </p>
+                          <div
+                            className="bg-white border border-gray-200 rounded-xl p-4 flex items-center justify-between hover:bg-gray-50 transition-colors cursor-pointer group shadow-sm"
+                            onClick={() => {
+                              if (msg.isZip) {
+                                // Handle binary ZIP - convert base64 to blob
+                                try {
+                                  console.log('[ZIP Download] Starting...');
+                                  console.log('[ZIP Download] Content length:', msg.content.length);
+                                  console.log('[ZIP Download] First 100 chars:', msg.content.substring(0, 100));
 
-                            <div
-                              className="bg-white border border-gray-200 rounded-xl p-4 flex items-center justify-between hover:bg-gray-50 transition-colors cursor-pointer group shadow-sm"
-                              onClick={() => {
-                                if (msg.isZip) {
-                                  // Handle binary ZIP - convert base64 to blob
-                                  try {
-                                    console.log('[ZIP Download] Starting...');
-                                    console.log('[ZIP Download] Content length:', msg.content.length);
-                                    console.log('[ZIP Download] First 100 chars:', msg.content.substring(0, 100));
+                                  const binary = atob(msg.content);
+                                  console.log('[ZIP Download] Base64 decoded, binary length:', binary.length);
 
-                                    const binary = atob(msg.content);
-                                    console.log('[ZIP Download] Base64 decoded, binary length:', binary.length);
-
-                                    const bytes = new Uint8Array(binary.length);
-                                    for (let i = 0; i < binary.length; i++) {
-                                      bytes[i] = binary.charCodeAt(i);
-                                    }
-                                    console.log('[ZIP Download] Byte array created');
-
-                                    const blob = new Blob([bytes], { type: 'application/zip' });
-                                    console.log('[ZIP Download] Blob created, size:', blob.size);
-
-                                    const url = URL.createObjectURL(blob);
-                                    const a = document.createElement('a');
-                                    a.href = url;
-                                    a.download = msg.fileData!.name;
-                                    a.click();
-                                    URL.revokeObjectURL(url);
-                                    console.log('[ZIP Download] Success!');
-                                  } catch (e) {
-                                    console.error('[ZIP Download] ERROR:', e);
-                                    console.error('[ZIP Download] Error details:', e instanceof Error ? e.message : String(e));
-                                    alert(`Error downloading ZIP file: ${e instanceof Error ? e.message : 'Unknown error'}`);
+                                  const bytes = new Uint8Array(binary.length);
+                                  for (let i = 0; i < binary.length; i++) {
+                                    bytes[i] = binary.charCodeAt(i);
                                   }
-                                } else {
-                                  // Handle regular text file
-                                  const blob = new Blob([msg.content], { type: 'text/plain' });
+                                  console.log('[ZIP Download] Byte array created');
+
+                                  const blob = new Blob([bytes], { type: 'application/zip' });
+                                  console.log('[ZIP Download] Blob created, size:', blob.size);
+
                                   const url = URL.createObjectURL(blob);
                                   const a = document.createElement('a');
                                   a.href = url;
                                   a.download = msg.fileData!.name;
                                   a.click();
                                   URL.revokeObjectURL(url);
+                                  console.log('[ZIP Download] Success!');
+                                } catch (e) {
+                                  console.error('[ZIP Download] ERROR:', e);
+                                  console.error('[ZIP Download] Error details:', e instanceof Error ? e.message : String(e));
+                                  alert(`Error downloading ZIP file: ${e instanceof Error ? e.message : 'Unknown error'}`);
                                 }
-                              }}
-                            >                         <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                                  <FileText className="text-white" size={20} />
-                                </div>
-                                <div>
-                                  <h4 className="font-semibold text-sm text-gray-900 group-hover:text-blue-600 transition-colors">{msg.fileData.name}</h4>
-                                  <p className="text-xs text-gray-500">{msg.fileData.type} • {msg.fileData.size}</p>
-                                </div>
+                              } else {
+                                // Handle regular text file
+                                const blob = new Blob([msg.content], { type: 'text/plain' });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = msg.fileData!.name;
+                                a.click();
+                                URL.revokeObjectURL(url);
+                              }
+                            }}
+                          >                         <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                                <FileText className="text-white" size={20} />
                               </div>
-                              <div className="p-2 text-gray-400 group-hover:text-blue-600 transition-colors">
-                                <Download size={20} />
+                              <div>
+                                <h4 className="font-semibold text-sm text-gray-900 group-hover:text-blue-600 transition-colors">{msg.fileData.name}</h4>
+                                <p className="text-xs text-gray-500">{msg.fileData.type} • {msg.fileData.size}</p>
                               </div>
                             </div>
-
-                            <div className="mt-4 flex items-center gap-2">
-                              <Check size={14} className="text-green-600" />
-                              <span className="text-sm text-green-600 font-medium">Task completed</span>
+                            <div className="p-2 text-gray-400 group-hover:text-blue-600 transition-colors">
+                              <Download size={20} />
                             </div>
                           </div>
-                        )}
-                      </div>
-                    )}
-                  </motion.div>
-                ))}
 
-                {agentState === AgentState.PLANNING && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                  >
-                    <Thinking modelTag={currentModel.tag} />
-                  </motion.div>
-                )}
+                          <div className="mt-4 flex items-center gap-2">
+                            <Check size={14} className="text-green-600" />
+                            <span className="text-sm text-green-600 font-medium">Task completed</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </motion.div>
+              ))}
 
-                <div className="h-12" />
-              </div>
-            )}
-          </div>
+              {agentState === AgentState.PLANNING && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                >
+                  <Thinking modelTag={currentModel.tag} />
+                </motion.div>
+              )}
 
-          <PlannerWidget plan={currentPlan} />
+              <div className="h-12" />
+            </div>
+          )}
+        </div>
 
-          {/* Bottom Input Bar - Minimal Multi-line Redesign with Ultra Tightened Spacing */}
-          <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#F9F9F9] via-[#F9F9F9] to-transparent pt-10 z-40">
-            <div className="max-w-2xl mx-auto">
-              <div className={`flex flex-col bg-white p-1 rounded-3xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-gray-100 transition-all ${isLoginRequired ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+        <PlannerWidget plan={currentPlan} />
 
-                {/* Upper Text Area - Dynamically scales up to max-height, minimal vertical gaps */}
-                <textarea
-                  ref={textareaRef}
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSend();
-                    }
-                  }}
-                  placeholder={messages.length > 0 ? "Message Manus..." : "What's on your mind?"}
-                  disabled={agentState !== AgentState.IDLE || isLoginRequired}
-                  className="w-full min-h-[24px] max-h-[300px] bg-transparent border-none outline-none text-[15px] px-3 pt-2 pb-0 text-gray-900 placeholder-gray-300 resize-none scrollbar-hide overflow-y-auto leading-relaxed"
-                />
+        {/* Bottom Input Bar - Minimal Multi-line Redesign with Ultra Tightened Spacing */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#F9F9F9] via-[#F9F9F9] to-transparent pt-10 z-40">
+          <div className="max-w-2xl mx-auto">
+            <div className={`flex flex-col bg-white p-1 rounded-3xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-gray-100 transition-all ${isLoginRequired ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
 
-                {/* Lower Icon Row - Zero margin-top for absolute minimum gap */}
-                <div className="flex items-center justify-between mt-0 px-1 pb-0.5 pt-0.5">
-                  {/* Left side: Upload */}
+              {/* Upper Text Area - Dynamically scales up to max-height, minimal vertical gaps */}
+              <textarea
+                ref={textareaRef}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+                placeholder={messages.length > 0 ? "Message Manus..." : "What's on your mind?"}
+                disabled={agentState !== AgentState.IDLE || isLoginRequired}
+                className="w-full min-h-[24px] max-h-[300px] bg-transparent border-none outline-none text-[15px] px-3 pt-2 pb-0 text-gray-900 placeholder-gray-300 resize-none scrollbar-hide overflow-y-auto leading-relaxed"
+              />
+
+              {/* Lower Icon Row - Zero margin-top for absolute minimum gap */}
+              <div className="flex items-center justify-between mt-0 px-1 pb-0.5 pt-0.5">
+                {/* Left side: Upload */}
+                <button
+                  disabled={isLoginRequired}
+                  className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors"
+                >
+                  <Plus size={18} />
+                </button>
+
+                {/* Right side: Mic and Send/Stop */}
+                <div className="flex items-center gap-1">
                   <button
                     disabled={isLoginRequired}
                     className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors"
                   >
-                    <Plus size={18} />
+                    <Mic size={16} />
                   </button>
 
-                  {/* Right side: Mic and Send/Stop */}
-                  <div className="flex items-center gap-1">
+                  {agentState !== AgentState.IDLE ? (
                     <button
-                      disabled={isLoginRequired}
-                      className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors"
+                      onClick={handleStop}
+                      className="w-8 h-8 rounded-full bg-black flex items-center justify-center text-white hover:opacity-90 transition-opacity"
                     >
-                      <Mic size={16} />
+                      <Square size={12} fill="currentColor" />
                     </button>
-
-                    {agentState !== AgentState.IDLE ? (
-                      <button
-                        onClick={handleStop}
-                        className="w-8 h-8 rounded-full bg-black flex items-center justify-center text-white hover:opacity-90 transition-opacity"
-                      >
-                        <Square size={12} fill="currentColor" />
-                      </button>
-                    ) : (
-                      <button
-                        onClick={handleSend}
-                        disabled={!inputValue.trim() || isLoginRequired}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${inputValue.trim()
-                          ? 'bg-black text-white hover:opacity-90 shadow-sm'
-                          : 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                          }`}
-                      >
-                        <ArrowUp size={16} />
-                      </button>
-                    )}
-                  </div>
+                  ) : (
+                    <button
+                      onClick={handleSend}
+                      disabled={!inputValue.trim() || isLoginRequired}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${inputValue.trim()
+                        ? 'bg-black text-white hover:opacity-90 shadow-sm'
+                        : 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                        }`}
+                    >
+                      <ArrowUp size={16} />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
+      </motion.div>
     </div>
   );
 }
