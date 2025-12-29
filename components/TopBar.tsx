@@ -30,7 +30,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-[#F9F9F9]/90 backdrop-blur-sm">
+    <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-[#F9F9F9]/90 backdrop-blur-sm">
       <div className="flex items-center gap-3">
         {/* History Toggle - Desktop: always hamburger, Mobile: back arrow when open */}
         <button
