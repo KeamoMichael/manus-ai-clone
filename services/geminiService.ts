@@ -15,12 +15,26 @@ export interface Model {
   name: string;
   displayName: string;
   tag: string;
+  description?: string;
+  badge?: string;
 }
 
 export const AVAILABLE_MODELS: Model[] = [
-  { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash', displayName: 'Gemini 2.0 Flash', tag: 'gemini-2.0-flash-exp' },
-  { id: 'gemini-exp-1206', name: 'Gemini Exp 1206', displayName: 'Gemini Advanced', tag: 'gemini-exp-1206' },
-  { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', displayName: 'Gemini 1.5 Pro', tag: 'gemini-1.5-pro' },
+  {
+    id: 'gemini-exp-1206',
+    name: 'Nexa 1.5 Pro',
+    displayName: 'Nexa 1.5 Pro',
+    tag: 'gemini-exp-1206',
+    description: 'High-performance agent designed for complex tasks.',
+    badge: 'Pro'
+  },
+  {
+    id: 'gemini-2.0-flash-exp',
+    name: 'Nexa 1.0 Fast',
+    displayName: 'Nexa 1.0 Fast',
+    tag: 'gemini-2.0-flash-exp',
+    description: 'A lightweight agent for everyday tasks.'
+  }
 ];
 
 // Socket.IO connection for E2B browser control
