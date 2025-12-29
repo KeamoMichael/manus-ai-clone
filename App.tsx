@@ -440,7 +440,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen bg-[#F9F9F9] text-gray-900 font-sans overflow-hidden">
+    <div className="flex h-screen bg-[#F9F9F9] dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans overflow-hidden">
       <HistorySidebar
         isOpen={historyOpen}
         onToggle={() => setHistoryOpen(!historyOpen)}
@@ -499,7 +499,7 @@ export default function App() {
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-5xl md:text-6xl font-sans font-semibold text-center text-gray-800 leading-tight tracking-tight"
+                className="text-3xl md:text-6xl font-sans font-semibold text-center text-gray-800 dark:text-gray-100 leading-tight tracking-tight"
               >
                 {getWelcomeMessage()}
               </motion.h1>
@@ -633,7 +633,7 @@ export default function App() {
         <PlannerWidget plan={currentPlan} />
 
         {/* Bottom Input Bar - Minimal Multi-line Redesign with Ultra Tightened Spacing */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#F9F9F9] via-[#F9F9F9] to-transparent dark:from-gray-900 dark:via-gray-900 pt-10 z-40">
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#F9F9F9] via-[#F9F9F9] to-transparent dark:from-gray-900 dark:via-gray-900 dark:to-transparent pt-10 z-40">
           <div className="max-w-2xl mx-auto">
             <div className={`flex flex-col bg-white dark:bg-gray-800 p-1 rounded-3xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-gray-700 transition-all ${isLoginRequired ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
 

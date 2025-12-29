@@ -301,7 +301,7 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = ({
                             {/* Username - Only visible when expanded */}
                             {isOpen && (
                                 <div className="flex flex-col items-start min-w-0 flex-1">
-                                    <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate w-full text-left">{username || 'User'}</span>
+                                    <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate w-full text-left">{username}</span>
                                     <span className="text-[10px] text-gray-500 dark:text-gray-400 truncate w-full text-left">Free Plan</span>
                                 </div>
                             )}

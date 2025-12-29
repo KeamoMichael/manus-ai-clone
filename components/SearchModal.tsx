@@ -71,14 +71,14 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-black/20 backdrop-blur-[1px] z-[100]"
+                        className="fixed inset-0 bg-black/20 dark:bg-black/50 z-[9999]"
                     />
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: -20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: -20 }}
                         transition={{ duration: 0.15, ease: "easeOut" }}
-                        className="fixed inset-0 m-auto w-full max-w-[600px] h-fit max-h-[80vh] bg-white dark:bg-gray-800 rounded-2xl shadow-2xl z-[100] flex flex-col overflow-hidden border border-gray-100 dark:border-gray-700"
+                        className="fixed inset-0 m-auto w-full max-w-[600px] h-fit max-h-[80vh] bg-white dark:bg-gray-800 rounded-2xl shadow-2xl z-[10000] flex flex-col overflow-hidden border border-gray-100 dark:border-gray-700"
                         style={{
                             top: '20%',
                             bottom: 'auto'

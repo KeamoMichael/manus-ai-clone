@@ -67,7 +67,7 @@ export const TopBar: React.FC<TopBarProps> = ({
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -5 }}
                   transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="absolute left-0 top-full mt-2 w-[320px] bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden z-50 origin-top-left p-1.5"
+                  className="fixed left-4 right-4 top-[60px] md:absolute md:inset-auto md:left-0 md:top-full md:mt-2 w-auto md:w-[320px] bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden z-50 origin-top md:origin-top-left p-1.5"
                 >
                   <div className="flex flex-col gap-0.5">
                     {AVAILABLE_MODELS.map((model) => (
