@@ -464,7 +464,7 @@ export const PlannerWidget: React.FC<PlannerWidgetProps> = ({ plan }) => {
                 {viewMode === 'desktop' && renderDesktopOverlay()}
             </AnimatePresence>
 
-            <div className={`fixed bottom-32 sm:bottom-28 left-0 right-0 flex justify-center z-50 pointer-events-none px-4 transition-all duration-300 ${viewMode === 'desktop' ? 'opacity-0 translate-y-10' : 'opacity-100 translate-y-0'}`}>
+            <div className={`absolute bottom-32 sm:bottom-28 left-0 right-0 flex justify-center z-50 pointer-events-none px-4 transition-all duration-300 ${viewMode === 'desktop' ? 'opacity-0 translate-y-10' : 'opacity-100 translate-y-0'}`}>
                 <div className="pointer-events-auto w-full max-w-2xl origin-bottom perspective-1000">
                     <AnimatePresence>
                         {viewMode === 'expanded' ? (
