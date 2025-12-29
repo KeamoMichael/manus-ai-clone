@@ -16,16 +16,20 @@ import manusLogo from './assets/manus logo.png';
 import { Thinking } from './components/Thinking';
 
 export default function App() {
+  // Chat History State
+  const [chats, setChats] = useState<ChatHistory[]>([]);
+  const [activeChatId, setActiveChatId] = useState<string>('');
+  const [historyOpen, setHistoryOpen] = useState(false);
+
+  // Current Chat State
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [agentState, setAgentState] = useState<AgentState>(AgentState.IDLE);
   const [currentPlan, setCurrentPlan] = useState<Plan | null>(null);
   const [currentModel, setCurrentModel] = useState<Model>(MODELS[0]);
-  const [isCreditSheetOpen, setIsCreditSheetOpen] = useState(false);
-  const [credits, setCredits] = useState(1067);
 
   // Auth & Session State
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Start as guest
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoginRequired, setIsLoginRequired] = useState(false);
   const [interactionCount, setInteractionCount] = useState(0);
 
@@ -49,6 +53,37 @@ export default function App() {
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 300)}px`;
     }
   }, [inputValue]);
+
+  // Initialize chat history from localStorage
+  useEffect(() => {
+    const savedChats = localStorage.getItem('manus_chat_history');
+    if (savedChats) {
+      try {
+        const parsed: ChatHistory[] = JSON.parse(savedChats);
+        setChats(parsed);
+        // Load most recent chat
+        if (parsed.length > 0) {
+          const mostRecent = parsed[0];
+          setActiveChatId(mostRecent.id);
+          setMessages(mostRecent.messages);
+        } else {
+          createNewChat();
+        }
+      } catch (e) {
+        console.error('Failed to load chat history:', e);
+        createNewChat();
+      }
+    } else {
+      createNewChat();
+    }
+  }, []);
+
+  // Save chats to localStorage whenever they change
+  useEffect(() => {
+    if (chats.length > 0) {
+      localStorage.setItem('manus_chat_history', JSON.stringify(chats));
+    }
+  }, [chats]);
 
   // Sync currentPlan updates
   useEffect(() => {

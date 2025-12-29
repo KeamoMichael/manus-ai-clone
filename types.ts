@@ -49,3 +49,11 @@ export const MODELS: Model[] = [
   { id: 'lite', name: 'Manus 1.6 Fast', description: 'A lightweight agent for everyday tasks.', tag: 'Fast' },
   { id: 'max', name: 'Manus 1.6 Pro', description: 'High-performance agent designed for complex tasks.', tag: 'Pro' },
 ];
+
+export interface ChatHistory {
+  id: string;
+  title: string;
+  messages: Message[];
+  createdAt: number;
+  updatedAt: number;
+}
