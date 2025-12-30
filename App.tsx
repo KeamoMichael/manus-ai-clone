@@ -407,10 +407,21 @@ export default function App() {
       }
     }
 
+    // Convert attached files to MessageAttachment format for display in chat
+    const messageAttachments = attachedFiles.map(f => ({
+      id: f.id,
+      name: f.file.name,
+      type: f.type,
+      size: f.file.size,
+      mimeType: f.file.type,
+      preview: f.preview // Will be data URL for images
+    }));
+
     const userMsg: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: userText
+      content: userText,
+      attachments: messageAttachments.length > 0 ? messageAttachments : undefined
     };
 
     setMessages(prev => [...prev, userMsg]);
@@ -452,11 +463,32 @@ export default function App() {
           }))
       );
 
+      // Extract text content from text-based files (code, documents, etc.)
+      const textContents: string[] = [];
+      for (const f of attachedFiles) {
+        if (f.type === 'code' || f.type === 'document' || f.file.type.startsWith('text/')) {
+          try {
+            const text = await f.file.text();
+            textContents.push(`[File: ${f.file.name}]\n${text}\n`);
+          } catch (e) {
+            console.error('Error reading text file:', e);
+          }
+        } else if (f.type === 'pdf') {
+          textContents.push(`[PDF: ${f.file.name} - ${formatFileSize(f.file.size)}]`);
+        }
+      }
+
+      // Augment prompt with file contents
+      let augmentedPrompt = userText;
+      if (textContents.length > 0) {
+        augmentedPrompt = `${userText}\n\nAttached files content:\n${textContents.join('\n')}`;
+      }
+
       // Clear attachments after capturing for send
       setAttachedFiles([]);
 
       // Stream response and update message content progressively
-      await generateChatResponseStream(userText, (streamedText) => {
+      await generateChatResponseStream(augmentedPrompt, (streamedText) => {
         if (isStoppedRef.current) return;
         setMessages(prev => prev.map(msg =>
           msg.id === msgId ? { ...msg, content: streamedText } : msg
@@ -720,8 +752,43 @@ export default function App() {
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   {msg.role === 'user' ? (
-                    <div className="bg-gray-100 px-5 py-3 rounded-2xl rounded-tr-sm text-gray-800 max-w-[85%] text-[15px] leading-relaxed">
-                      {msg.content}
+                    <div className="flex flex-col items-end gap-2 max-w-[85%]">
+                      {/* Attachments display */}
+                      {msg.attachments && msg.attachments.length > 0 && (
+                        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1 max-w-full">
+                          {msg.attachments.map((att) => (
+                            <div key={att.id} className="flex-shrink-0">
+                              {att.type === 'image' && att.preview ? (
+                                <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-200">
+                                  <img
+                                    src={att.preview}
+                                    alt={att.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              ) : (
+                                <div className="h-14 px-3 rounded-lg bg-gray-200 flex items-center gap-2">
+                                  <div className={`flex-shrink-0 ${att.type === 'pdf' ? 'text-red-500' :
+                                    att.type === 'archive' ? 'text-yellow-500' :
+                                      att.type === 'code' ? 'text-blue-500' :
+                                        'text-gray-500'
+                                    }`}>
+                                    <FileText size={18} />
+                                  </div>
+                                  <div className="min-w-0">
+                                    <p className="text-xs text-gray-700 truncate max-w-[100px] font-medium">{att.name}</p>
+                                    <p className="text-[10px] text-gray-500">{att.type.toUpperCase()}</p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {/* Message text */}
+                      <div className="bg-gray-100 px-5 py-3 rounded-2xl rounded-tr-sm text-gray-800 text-[15px] leading-relaxed">
+                        {msg.content}
+                      </div>
                     </div>
                   ) : (
                     <div className="w-full">

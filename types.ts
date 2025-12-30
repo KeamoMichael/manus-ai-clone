@@ -1,3 +1,12 @@
+export interface MessageAttachment {
+  id: string;
+  name: string;
+  type: 'image' | 'pdf' | 'archive' | 'document' | 'code' | 'other';
+  size: number;
+  mimeType: string;
+  preview?: string; // For images - data URL
+}
+
 export interface Message {
   id: string;
   role: 'user' | 'assistant' | 'system';
@@ -8,6 +17,7 @@ export interface Message {
   fileData?: FileArtifact;
   modelTag?: string;
   isZip?: boolean; // Flag for binary ZIP files
+  attachments?: MessageAttachment[]; // User uploaded files
 }
 
 export interface FileArtifact {
